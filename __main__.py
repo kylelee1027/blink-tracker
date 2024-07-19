@@ -1,14 +1,20 @@
 import cv2
 import mediapipe as mp
 import numpy as np
-import threading
+import time
+from plyer import notification
 
-def calculate_distance(top, bottom):
-    top = np.array(top)
-    bottom = np.array(bottom)
+def calculate_distance(rightTop, rightBottom, leftTop, leftBottom):
+    rightTop = np.array(rightTop)
+    rightBottom = np.array(rightBottom)
+    leftTop = np.array(leftTop)
+    leftBottom = np.array(leftBottom)
 
-    dist = np.linalg.norm(top - bottom)
-    return dist
+    rightDist = np.linalg.norm(rightTop - rightBottom)
+    leftDist = np.linalg.norm(leftTop - leftBottom)
+    if ((leftDist < 0.01) and (rightDist < 0.01)):
+        return True
+    return False
 
 
 mp_face_detection = mp.solutions.face_mesh
@@ -25,6 +31,7 @@ with mp_face_detection.FaceMesh(
     min_detection_confidence=0.5,
     min_tracking_confidence=0.5
 ) as face_detection:
+    start_time = time.time()
     while cap.isOpened():
         ret, frame = cap.read()
         if not ret:
@@ -63,8 +70,19 @@ with mp_face_detection.FaceMesh(
                     bottom_left_eye = [results.multi_face_landmarks[0].landmark[374].x, results.multi_face_landmarks[0].landmark[374].y]
                     top_right_eye = [results.multi_face_landmarks[0].landmark[159].x, results.multi_face_landmarks[0].landmark[159].y]
                     bottom_right_eye = [results.multi_face_landmarks[0].landmark[145].x, results.multi_face_landmarks[0].landmark[145].y]
-                    if ((calculate_distance(top_right_eye, bottom_right_eye) and calculate_distance(top_left_eye, bottom_left_eye)) < 0.01 ):
-                        print("BLINK!")
+                    print(time.time() - start_time)
+                    if calculate_distance(top_left_eye, bottom_left_eye, top_right_eye, bottom_right_eye):
+                        print("BLINK")
+                        start_time = time.time()
+                    if ((time.time() - start_time) > 5):
+                        print("EKJFNSEKJFN")
+                        notification.notify(
+                            title = "TIME TO BLINK",
+                            message = "You haven't blinked in over 15 seconds...",
+                            timeout = 2
+                        )
+                        time.sleep(2)
+
                 except:
                     pass
                     
