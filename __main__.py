@@ -72,10 +72,8 @@ with mp_face_detection.FaceMesh(
                     bottom_right_eye = [results.multi_face_landmarks[0].landmark[145].x, results.multi_face_landmarks[0].landmark[145].y]
                     print(time.time() - start_time)
                     if calculate_distance(top_left_eye, bottom_left_eye, top_right_eye, bottom_right_eye):
-                        print("BLINK")
                         start_time = time.time()
-                    if ((time.time() - start_time) > 5):
-                        print("EKJFNSEKJFN")
+                    if ((time.time() - start_time) > 15):
                         notification.notify(
                             title = "TIME TO BLINK",
                             message = "You haven't blinked in over 15 seconds...",
